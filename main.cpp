@@ -5,47 +5,48 @@
 using namespace std;
 
 // Tx data
-struct TransactionData {
+struct TransactionData
+{
     double amount;
     string senderKey;
     string receiverKey;
     time_t timestamp;
-};
+}
 
 // Block class
-class Block {
-    private:
-        int index;
-        size_t blockHash;
-        size_t previousHash;
-        size_t generateHash();
+class Block
+{
+  private:
+    int index;
+    size_t blockHash;
+    size_t previousHash;
+    size_t generateHash();
 
+  public:
+    // Constructor
+    Block(int idx, TransactionData d, size_t previousHash);
 
-    public:
-        // Constructor
-        Block(int idx, TransactionData d, size_t previousHash);
+    // Get OG hash
+    size_t getHash();
 
-        // Get OG hash
-        size_t getHash();
+    // Get prev hash
+    size_t getPreviousHash();
 
-        // Get prev hash
-        size_t getPreviousHash();
+    // Tx data
+    TransactionData data;
 
-        // Tx data
-        TransactionData data;
-
-        // Validate hash
-        bool isHashValid();
-};
+    // Validate hash
+    bool isHashValid();
+}
 
 // Constructor with parameters
-Block::Block(int idx, TransactionData d, size_t prevHash) 
+Block::Block(int idx, TransactionData d, size_t prevHash)
 {
     index = idx;
     data = d;
     previousHash = prevHash;
     blockHash = generateHash();
-};
+}
 
 // Private functions
 size_t Block::generateHash()
@@ -56,43 +57,43 @@ size_t Block::generateHash()
     string toHash = to_string(data.amount) + data.receiverKey + data.senderKey + to_string(data.timestamp);
 
     return finalHash(hash1(toHash) + hash2(previousHash));
-};
+}
 
 // Public functions
-size_t Block:: getHash()
+size_t Block::getHash()
 {
     return blockHash;
-};
+}
 
-size_t Block:: getPreviousHash()
+size_t Block::getPreviousHash()
 {
     return previousHash;
-};
+}
 
 bool Block::isHashValid()
 {
     return generateHash() == blockHash;
-};
+}
 
 // Blockchain
-class Blockchain 
+class Blockchain
 {
-    private:
-        Block createGenesisBlock();
+  private:
+    Block createGenesisBlock();
 
-    public:
-        vector<Block> chain;
+  public:
+    vector<Block> chain;
 
-        // Constructor
-        Blockchain();
+    // Constructor
+    Blockchain();
 
-        // Public functions
-        void addBlock(TransactionData data);
-        bool isChainValid();
+    // Public functions
+    void addBlock(TransactionData data);
+    bool isChainValid();
 
-        // Contrived example for demo only
-        Block *getLatestBlock();
-};
+    // Contrived example for demo only
+    Block *getLatestBlock();
+}
 
 // Blockchain Constructor
 
@@ -100,7 +101,7 @@ Blockchain::Blockchain()
 {
     Block genesis = createGenesisBlock();
     chain.push_back(genesis);
-};
+}
 
 Block Blockchain::createGenesisBlock()
 {
@@ -114,26 +115,26 @@ Block Blockchain::createGenesisBlock()
     hash<int> hash1;
     Block genesis(0, d, hash1(0));
     return genesis;
-};
+}
 
 // Bad!! only for demo
 Block *Blockchain::getLatestBlock()
 {
     return &chain.back();
-};
+}
 
 void Blockchain::addBlock(TransactionData d)
 {
     int index = (int)chain.size() - 1;
     Block newBlock(index, d, getLatestBlock()->getHash());
-};
+}
 
 bool Blockchain::isChainValid()
 {
     vector<Block>::iterator it;
     int chainLength = (int)chain.size();
 
-    for(it = chain.begin(); it != chain.end(); ++it)
+    for (it = chain.begin(); it != chain.end(); ++it)
     {
         Block currentBlock = *it;
         if (!currentBlock.isHashValid())
@@ -141,17 +142,17 @@ bool Blockchain::isChainValid()
             return false;
         }
 
-        if(chainLength > 1)
+        if (chainLength > 1)
         {
             Block previousBlock = *(it - 1);
-            if(currentBlock.getPreviousHash() != previousBlock.getHash())
+            if (currentBlock.getPreviousHash() != previousBlock.getHash())
             {
                 return false;
             }
         }
     }
     return true;
-};
+}
 
 int main()
 {
@@ -190,5 +191,4 @@ int main()
 
     cout << "Is the chain stillll valid?" << endl;
     cout << CluffCoin.isChainValid() << endl;
-
-};
+}
